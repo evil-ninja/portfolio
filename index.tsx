@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import heroImg from './dr-peeyush-bhargava-malviya-nagar-jaipur-diabetologist-doctors-qw6rjvxcpw.jpg';
+import heroImg from './dist/assets/photo.jpg';
 
 const ThemeContext = React.createContext({
     theme: 'light',
