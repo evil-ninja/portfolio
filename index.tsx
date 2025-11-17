@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import heroImg from './dr-peeyush-bhargava-malviya-nagar-jaipur-diabetologist-doctors-qw6rjvxcpw.jpg';
 
 const ThemeContext = React.createContext({
     theme: 'light',
@@ -746,7 +747,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     hero: {
         height: '60vh',
-        backgroundImage: 'url(./dr-peeyush-bhargava-malviya-nagar-jaipur-diabetologist-doctors-qw6rjvxcpw.jpg)',
+        backgroundImage: `url(${heroImg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
