@@ -84,6 +84,25 @@ const App = () => {
     );
 };
 
+const ThemeToggleButton = () => {
+    const { theme, toggleTheme } = useTheme();
+
+    return (
+        <button
+            onClick={toggleTheme}
+            className="theme-toggle-button"
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+            {theme === 'light' ? (
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            )}
+        </button>
+    );
+};
+
 const Header = () => {
     const [hoveredLink, setHoveredLink] = React.useState(null);
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -111,6 +130,14 @@ const Header = () => {
         setIsMenuOpen(false);
     };
 
+    const handleBookAppointmentClick = () => {
+        const targetElement = document.querySelector('#appointment');
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+        setIsMenuOpen(false);
+    };
+
     React.useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
@@ -118,6 +145,18 @@ const Header = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    React.useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isMenuOpen) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isMenuOpen]);
 
     React.useEffect(() => {
         document.body.style.overflow = isMenuOpen ? 'hidden' : 'auto';
@@ -131,30 +170,6 @@ const Header = () => {
         color: hoveredLink === href ? 'var(--color-primary)' : 'var(--color-text-primary)',
     });
     
-    const ThemeToggleButton = ({ isMobile = false }) => {
-        const { theme, toggleTheme } = useTheme();
-
-        const mobileStyle = isMobile ? {
-            transform: 'scale(1.3)',
-            marginTop: '1rem',
-        } : {};
-
-        return (
-            <button
-                onClick={toggleTheme}
-                style={{...styles.themeToggleButton, ...mobileStyle}}
-                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            >
-                {theme === 'light' ? (
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                )}
-            </button>
-        );
-    };
-
     const headerStyle = {
         ...styles.header,
         boxShadow: isScrolled ? '0 4px 20px var(--color-shadow-medium)' : '0 2px 10px var(--color-shadow)',
@@ -178,27 +193,38 @@ const Header = () => {
                             {link.text}
                          </a>
                     ))}
-                    <ThemeToggleButton isMobile={false} />
+                    <ThemeToggleButton />
                 </nav>
                 <button 
-                    className="hamburger-menu" 
+                    className={`hamburger-menu ${isMenuOpen ? 'open' : ''}`} 
                     onClick={toggleMenu} 
                     aria-label="Toggle menu"
                     aria-expanded={isMenuOpen}
                     aria-controls="mobile-nav-menu"
                 >
-                    {isMenuOpen ? '✕' : '☰'}
+                    <div className="hamburger-box">
+                        <div className="hamburger-inner"></div>
+                    </div>
                 </button>
             </div>
             <div 
+                className={`mobile-nav-overlay ${isMenuOpen ? 'open' : ''}`}
+                onClick={toggleMenu}
+                aria-hidden={!isMenuOpen}
+            ></div>
+            <div 
                 id="mobile-nav-menu"
                 className={`mobile-nav ${isMenuOpen ? 'open' : ''}`}
+                aria-hidden={!isMenuOpen}
             >
+                <div className="mobile-nav-header">
+                    <h2 className="mobile-nav-logo">Girdhar Hospital</h2>
+                </div>
                 {navLinks.map((link, index) => (
                     <div 
                         key={link.href}
                         className="nav-item"
-                        style={{ transitionDelay: `${(index + 1) * 100}ms` }}
+                        style={{ transitionDelay: `${(index + 1) * 80}ms` }}
                     >
                         <a 
                             href={link.href} 
@@ -209,10 +235,16 @@ const Header = () => {
                     </div>
                 ))}
                 <div 
-                    className="nav-item"
-                    style={{ transitionDelay: `${(navLinks.length + 1) * 100}ms` }}
+                    className="nav-item mobile-nav-footer"
+                    style={{ transitionDelay: `${(navLinks.length + 1) * 80}ms` }}
                 >
-                    <ThemeToggleButton isMobile={true} />
+                    <button 
+                        className="mobile-nav-cta"
+                        onClick={handleBookAppointmentClick}
+                    >
+                        Book Appointment
+                    </button>
+                    <ThemeToggleButton />
                 </div>
             </div>
         </header>
@@ -732,18 +764,6 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: 'var(--color-text-primary)',
         transition: 'color 0.3s',
         cursor: 'pointer',
-    },
-    themeToggleButton: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        color: 'var(--color-primary)',
-        padding: '0.25rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: '50%',
-        transition: 'transform 0.2s ease-in-out',
     },
     hero: {
         height: '60vh',
